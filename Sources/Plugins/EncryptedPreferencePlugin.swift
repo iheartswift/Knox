@@ -15,7 +15,7 @@ public extension Knox {
         private let store: Knox.KeychainStore
         
         // MARK: - Designated init
-        init(service: String) {
+        public init(service: String) {
             self.store = Knox.KeychainStore(service: service)
         }
 
