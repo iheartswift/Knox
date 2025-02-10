@@ -12,12 +12,17 @@ public extension Knox {
     @objc class SecureEnclavePreferencePlugin: NSObject, Knox.EncryptedPreferencePluginInterface {
 
         // MARK: - Properties
-        private let secureEnclaveStore = Knox.SecureEnclaveStore(service: "com.cibc.secureenclave.preferences")
+        private let store: Knox.SecureEnclaveStore
+        
+        // MARK: - Designated init
+        init(service: String) {
+            self.store = Knox.SecureEnclaveStore(service: service)
+        }
 
         // MARK: - Get Preference
         public func getPreference(key: String, default: String) async throws -> String {
             do {
-                let data = try secureEnclaveStore.retrieve(forKey: key, biometric: false, reason: "Authenticate to access your secure data")
+                let data = try store.retrieve(forKey: key, biometric: false, reason: "Authenticate to access your secure data")
                 guard let value = String(data: data, encoding: .utf8) else {
                     throw Knox.SecureEnclaveStore.StoreError.dataNotFound
                 }
@@ -33,7 +38,7 @@ public extension Knox {
                 throw Knox.SecureEnclaveStore.StoreError.encodingFailed("Failed to create data from value.")
             }
             do {
-                try secureEnclaveStore.save(data: data, forKey: key, biometric: false, reason: "Authenticate to access your secure data")
+                try store.save(data: data, forKey: key, biometric: false, reason: "Authenticate to access your secure data")
             } catch {
                 throw Knox.SecureEnclaveStore.StoreError.keyRetrievalFailed("Failed to save preference: \(error.localizedDescription)")
             }
@@ -41,12 +46,12 @@ public extension Knox {
 
         // MARK: - Has Preference
         public func hasPreference(key: String) async throws -> Bool {
-            return secureEnclaveStore.keyExists(forKey: key)
+            return store.keyExists(forKey: key)
         }
 
         // MARK: - Remove Preference
         public func removePreference(key: String) async throws {
-            let success = secureEnclaveStore.delete(forKey: key)
+            let success = store.delete(forKey: key)
             if !success {
                 throw Knox.SecureEnclaveStore.StoreError.keyDeletionFailed("Failed to delete value for key: \(key)")
             }
