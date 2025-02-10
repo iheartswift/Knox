@@ -11,8 +11,13 @@ public extension Knox {
     
     struct StoredItem: Identifiable, Codable {
         public var id = UUID()
-        let key: String
-        let storageType: StorageType
-        var isRevealed: Bool = false
+        public let key: String
+        public let storageType: Knox.StorageType
+        public var isRevealed: Bool = false
+        
+        public init(key: String, storageType: Knox.StorageType) {
+            self.key = key
+            self.storageType = storageType
+        }
     }
 }
